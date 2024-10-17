@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test Bigfoot Experiment</title>
+    <link rel="stylesheet" href="bigfoot-default_New.css"> <!-- Link to Bigfoot CSS -->
+    <!-- Include jQuery 1.8.3 -->
+    <script src="https://code.jquery.com/jquery-1.8.3.min.js"></script>
+</head>
+<body>
+    <h1>Bigfoot</h1>
+
+    <!-- Footnote reference in the text -->
+    <p>The message is hidden in the footnote.<sup id="fnref:1"><a href="#fn:1" rel="footnote">"FootNote"</a></sup></p>
+
+    <!-- Hidden footnote content -->
+    <div style="display:none;">
+        <ol>
+            <li id="fn:1">
+                <p>CSE 210 is an interesting course. <a href="#fnref:1" rev="footnote">↩</a></p>
+            </li>
+        </ol>
+    </div>
+
+    <!-- Include Bigfoot.js -->
+    <script src="bigfoot_New.js"></script>
+
+    <script type="text/javascript">
+        // Initialize Bigfoot.js with a custom hoverDelay
+        $(document).ready(function() {
+            $.bigfoot({
+                popoverCreateDelay: 5000,
+                hoverDelay:500
+
+            });
+
+            setTimeout(function() {
+                $('.bigfoot-footnote__button').text('FT');
+             }, 100);
+        });
+    </script>
+</body>
+</html>
