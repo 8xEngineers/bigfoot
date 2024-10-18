@@ -1,37 +1,17 @@
-<!0DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Draggable Footnotes</title>
+    <link rel="stylesheet" href="bigfoot2.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <style>
-        .bigfoot-footnote {
-            display: none; /* Hide the footnote by default */
-            position: relative; /* For positioning the dot */
-            background-color: #ffcc00;
-            border: 1px solid #ddd;
-            padding: 10px;
-            margin: 10px 0;
-            z-index: 1000; /* Make sure it's on top */
-            font-weight: bold;
-        }
-        .draggable-dot {
-            position: absolute; /* Positioning the dot absolutely */
-            top: 5px;
-            right: 5px;
-            width: 10px;
-            height: 10px;
-            background: black; /* Color of the draggable dot */
-            border-radius: 50%; /* Make it a circle */
-            cursor: pointer; /* Pointer cursor */
-        }
-    </style>
+    <script src="bigfoot2.js" defer></script>
 </head>
 <body>
 
     <h1>BigFoot</h1>
-    <p>This is a draggable footnote.<a href="#footnote-1" class="footnote-link">[1]</a></p>
+    <p>This is a draggable footnote.<a href="#footnote-1" class="footnote-link">[FT]</a></p>
 
     <aside class="bigfoot-footnote" id="footnote-1" data-footnote-number="1" data-footnote-identifier="footnote-1">
         <div class="bigfoot-footnote__wrapper">
@@ -42,51 +22,6 @@
         </div>
         <div class="bigfoot-footnote__tooltip"></div>
     </aside>
-
-    <script>
-        $(document).ready(function() {
-            var isDragging = false; // Variable to track if we are currently dragging
-            var offsetX, offsetY; // Variables to store the mouse offset
-
-            // Function to make the footnote draggable
-            function makeFootnoteDraggable($footnote) {
-                var $dot = $footnote.find('.draggable-dot');
-
-                $dot.on('mousedown', function(event) {
-                    isDragging = true;
-                    offsetX = event.clientX - $footnote.position().left;
-                    offsetY = event.clientY - $footnote.position().top;
-
-                    $(document).on('mousemove', function(event) {
-                        if (isDragging) {
-                            $footnote.css({
-                                top: event.clientY - offsetY,
-                                left: event.clientX - offsetX,
-                                position: 'absolute' // Make sure the footnote is positioned absolutely
-                            });
-                        }
-                    });
-                });
-
-                $(document).on('mouseup', function() {
-                    isDragging = false; // Stop dragging
-                });
-            }
-
-            // Call this function after creating each footnote
-            $('.bigfoot-footnote').each(function() {
-                var $footnote = $(this); // Get the current footnote
-                makeFootnoteDraggable($footnote); // Make it draggable
-            });
-
-            // Show the footnote when the link is clicked
-            $('.footnote-link').on('click', function(event) {
-                event.preventDefault(); // Prevent the default anchor behavior
-                var footnoteId = $(this).attr('href'); // Get the footnote ID
-                $(footnoteId).toggle(); // Toggle visibility of the footnote
-            });
-        });
-    </script>
 
 </body>
 </html>
