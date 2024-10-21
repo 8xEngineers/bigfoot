@@ -1,7 +1,7 @@
 (function() {
   (function($) {
     return $.bigfoot = function(options) {
-      var addBreakpoint, baseFontSize, bigfoot, buttonHover, calculatePixelDimension, cleanFootnoteLinks, clickButton, createPopover, defaults, deleteEmptyOrHR, escapeKeypress, footnoteInit, getSetting, makeDefaultCallbacks, popoverStates, positionTooltip, removeBackLinks, removeBreakpoint, removePopovers, replaceWithReferenceAttributes, repositionFeet, roomCalc, settings, touchClick, unhoverFeet, updateSetting, viewportDetails;
+      var addBreakpoint, baseFontSize, bigfoot, buttonHover, calculatePixelDimension, cleanFootnoteLinks, clickButton, createPopover, defaults, deleteEmptyOrHR, escapeKeypress, footnoteInit, getSetting, makeDefaultCallbacks, makeFootnoteDraggable, popoverStates, positionTooltip, removeBackLinks, removeBreakpoint, removePopovers, replaceWithReferenceAttributes, repositionFeet, roomCalc, settings, touchClick, unhoverFeet, updateSetting, viewportDetails;
       bigfoot = void 0;
       defaults = {
         actionOriginalFN: "hide",
@@ -23,9 +23,11 @@
         scope: false,
         useFootnoteOnlyOnce: true,
         contentMarkup: "<aside class='bigfoot-footnote is-positioned-bottom' data-footnote-number='{{FOOTNOTENUM}}' data-footnote-identifier='{{FOOTNOTEID}}' alt='Footnote {{FOOTNOTENUM}}'> <div class='bigfoot-footnote__wrapper'> <div class='bigfoot-footnote__content'> {{FOOTNOTECONTENT}} </div></div> <div class='bigfoot-footnote__tooltip'></div> </aside>",
-        buttonMarkup: "<div class='bigfoot-footnote__container'> <button class='bigfoot-footnote__button' id='{{SUP:data-footnote-backlink-ref}}' data-footnote-number='{{FOOTNOTENUM}}' data-footnote-identifier='{{FOOTNOTEID}}' alt='See Footnote {{FOOTNOTENUM}}' rel='footnote' data-bigfoot-footnote='{{FOOTNOTECONTENT}}'> <svg class='bigfoot-footnote__button__circle' viewbox='0 0 6 6' preserveAspectRatio='xMinYMin'><circle r='3' cx='3' cy='3' fill='white'></circle></svg> <svg class='bigfoot-footnote__button__circle' viewbox='0 0 6 6' preserveAspectRatio='xMinYMin'><circle r='3' cx='3' cy='3' fill='white'></circle></svg> <svg class='bigfoot-footnote__button__circle' viewbox='0 0 6 6' preserveAspectRatio='xMinYMin'><circle r='3' cx='3' cy='3' fill='white'></circle></svg> </button></div>"
+        buttonMarkup: "<div class='bigfoot-footnote__container'> <button class='bigfoot-footnote__button' id='{{SUP:data-footnote-backlink-ref}}' data-footnote-number='{{FOOTNOTENUM}}' data-footnote-identifier='{{FOOTNOTEID}}' alt='See Footnote {{FOOTNOTENUM}}' rel='footnote' data-bigfoot-footnote='{{FOOTNOTECONTENT}}'> <svg class='bigfoot-footnote__button__circle' viewbox='0 0 6 6' preserveAspectRatio='xMinYMin'><circle r='3' cx='3' cy='3' fill='white'></circle></svg> <svg class='bigfoot-footnote__button__circle' viewbox='0 0 6 6' preserveAspectRatio='xMinYMin'><circle r='3' cx='3' cy='3' fill='white'></circle></svg> <svg class='bigfoot-footnote__button__circle' viewbox='0 0 6 6' preserveAspectRatio='xMinYMin'><circle r='3' cx='3' cy='3' fill='white'></circle></svg> </button></div>",
+        draggableContent: false
       };
       settings = $.extend(defaults, options);
+      popoverStates = {};
       popoverStates = {};
       footnoteInit = function() {
         var $curResetElement, $currentLastFootnoteLink, $footnoteAnchors, $footnoteButton, $lastResetElement, $parent, $relevantFNLink, $relevantFootnote, finalFNLinks, footnoteButton, footnoteButtonSearchQuery, footnoteContent, footnoteIDNum, footnoteLinks, footnoteNum, footnotes, i, _i, _ref, _results;
@@ -256,7 +258,12 @@
           content = void 0;
           try {
             content = settings.contentMarkup.replace(/\{\{FOOTNOTENUM\}\}/g, $this.attr("data-footnote-number")).replace(/\{\{FOOTNOTEID\}\}/g, $this.attr("data-footnote-identifier")).replace(/\{\{FOOTNOTECONTENT\}\}/g, $this.attr("data-bigfoot-footnote")).replace(/\&gtsym\;/g, "&gt;").replace(/\&ltsym\;/g, "&lt;");
-            return content = replaceWithReferenceAttributes(content, "BUTTON", $this);
+            content = replaceWithReferenceAttributes(content, "BUTTON", $this);
+            $content = $(content);
+            try {
+              settings.activateCallback($content, $this);
+            } catch (_error) {}
+            return $content.insertAfter($buttons);
           } finally {
             $content = $(content);
             try {
@@ -277,8 +284,45 @@
         setTimeout((function() {
           return $popoversCreated.addClass("is-active");
         }), settings.popoverCreateDelay);
+        if (settings.draggableContent) {
+          makeFootnoteDraggable($popoversCreated);
+        }
         return $popoversCreated;
       };
+      makeFootnoteDraggable = function($footnote) {
+        var isDragging, offsetX, offsetY;
+        isDragging = false;
+        offsetX = 0;
+        offsetY = 0;
+        $footnote.on('mousedown', function(event) {
+          isDragging = true;
+          offsetX = event.clientX - $footnote.position().left;
+          offsetY = event.clientY - $footnote.position().top;
+          return $(document).on('mousemove', function(event) {
+            if (isDragging) {
+              return $footnote.css({
+                top: event.clientY - offsetY,
+                left: event.clientX - offsetX,
+                position: 'absolute'
+              });
+            }
+          });
+        });
+        return $(document).on('mouseup', function() {
+          return isDragging = false;
+        });
+      };
+      $(document).ready(function() {
+        footnoteInit();
+        $(document).on("mouseenter", ".bigfoot-footnote__button", buttonHover);
+        $(document).on("touchend click", touchClick);
+        $(document).on("mouseout", ".is-hover-instantiated", unhoverFeet);
+        $(document).on("keyup", escapeKeypress);
+        $(window).on("scroll resize", repositionFeet);
+        return $(document).on("gestureend", function() {
+          return repositionFeet();
+        });
+      });
       baseFontSize = function() {
         var el, size;
         el = document.createElement("div");

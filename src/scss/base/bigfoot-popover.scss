@@ -284,3 +284,49 @@
     bottom: (-0.5 * $popover-tooltip-size);
   }
 }
+
+.bigfoot-footnote {
+  display: none; 
+  position: relative; 
+  background-color: #ffcc00;
+  border: 1px solid #ddd;
+  padding: 10px;
+  margin: 10px 0;
+  z-index: 1000; 
+  font-weight: bold;
+  width: auto; 
+  max-width: fit-content; 
+  color: blue;
+  border-radius: 8px; 
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); 
+}
+
+.draggable-dot {
+  position: absolute; 
+  top: 5px;
+  right: 5px;
+  width: 10px;
+  height: 10px;
+  background: black; 
+  border-radius: 50%; 
+  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  transition: background 0.3s; 
+}
+
+.footnote-link {
+  display: inline-block; 
+  padding: 5px 10px;
+  background-color: #6ab9ee; 
+  color: rgb(206, 18, 18); 
+  border: 2px solid #619fc8; 
+  border-radius: 5px; 
+  text-decoration: none; 
+  transition: background 0.3s, border-color 0.3s; 
+  font-weight: bold;
+}
+
+.footnote-link:hover {
+  background-color: #2980b9; 
+  border-color: #1a669c; 
+}

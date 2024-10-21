@@ -267,6 +267,16 @@
                                   <svg class='bigfoot-footnote__button__circle' viewbox='0 0 6 6' preserveAspectRatio='xMinYMin'><circle r='3' cx='3' cy='3' fill='white'></circle></svg>
                                   <svg class='bigfoot-footnote__button__circle' viewbox='0 0 6 6' preserveAspectRatio='xMinYMin'><circle r='3' cx='3' cy='3' fill='white'></circle></svg>
                               </button></div>"
+
+      #*
+      # Determines whether or not the footnote content popover should be draggable.
+      #
+      # @access public
+      # @author 8xEngineers
+      # @since 0.0.1
+      # @returns {Boolean}
+      # @default false
+      draggableContent : false
     settings = $.extend defaults, options
 
     popoverStates = {}
@@ -294,6 +304,7 @@
     # @since 0.0.1
     # @access private
     # @returns {undefined}
+    popoverStates = {} 
 
     footnoteInit = ->
       # Get all of the possible footnote links
@@ -692,6 +703,11 @@
           # Handles replacements of BUTTON attribute requests
           content = replaceWithReferenceAttributes(content, "BUTTON", $this)
 
+          $content = $(content)
+          try 
+            settings.activateCallback $content, $this
+          $content.insertAfter $buttons
+
         finally
           # Create content and activate user-defined callback on it
           $content = $(content)
@@ -725,9 +741,53 @@
         $popoversCreated.addClass "is-active"
       ), settings.popoverCreateDelay
 
+      makeFootnoteDraggable($popoversCreated) if settings.draggableContent
       $popoversCreated
 
+    #*
+    # Adds draggable functionality to the footnote content popover.
+    #
+    # @param {jQuery} $popoversCreated - The popover(s) to be made draggable.
+    #
+    # @ignore
+    # @author 8xEngineers
+    # @since 0.0.1
+    # @access private
+    # @returns {undefined}
 
+    # Add the makeFootnoteDraggable function
+    makeFootnoteDraggable = ($footnote) ->
+      isDragging = false
+      offsetX = 0
+      offsetY = 0
+
+      $footnote.on 'mousedown', (event) ->
+        isDragging = true
+        offsetX = event.clientX - $footnote.position().left
+        offsetY = event.clientY - $footnote.position().top
+
+        $(document).on 'mousemove', (event) ->
+          if isDragging
+            $footnote.css
+              top: event.clientY - offsetY
+              left: event.clientX - offsetX
+              position: 'absolute'
+
+      $(document).on 'mouseup', ->
+        isDragging = false
+
+    # ... rest of the existing code ...
+
+    $(document).ready ->
+      footnoteInit()
+
+      $(document).on "mouseenter", ".bigfoot-footnote__button", buttonHover
+      $(document).on "touchend click", touchClick
+      $(document).on "mouseout", ".is-hover-instantiated", unhoverFeet
+      $(document).on "keyup", escapeKeypress
+      $(window).on "scroll resize", repositionFeet
+      $(document).on "gestureend", () ->
+        repositionFeet()
 
     #*
     # Calculates the base font size for `em`- and `rem`-based sizing.
